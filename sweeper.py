@@ -1,28 +1,57 @@
 import random
+import aiRand
 #look into pygame for gui
 # board the user cannot see
+global boardDisplay
+global board
+
 board = [[0,0,0,0,0,0,0,0,0,0], #0 = no bomb, 
-        [0,0,0,0,0,0,0,0,0,0],  #1 = bomb
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],]
-# board user can see
+            [0,0,0,0,0,0,0,0,0,0],  #1 = bomb
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],]
 boardDisplay=[[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], #-1 is unknown
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-        ]
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            ]
+def initialize():
+    
+    board = [[0,0,0,0,0,0,0,0,0,0], #0 = no bomb, 
+            [0,0,0,0,0,0,0,0,0,0],  #1 = bomb
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],]
+    # board user can see
+    
+    boardDisplay=[[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], #-1 is unknown
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+            ]
+
 
 TotalRows=len(boardDisplay)
 TotalCols=len(boardDisplay[0])
@@ -85,44 +114,70 @@ def is_int(input_string):
     except ValueError:
         return False
 
-def requestinput():
-    ask1 = input("guess a row(1," +str(TotalRows)+"): ")
-    while is_int(ask1) is not True:
-        ask1 = input("that's not an integer, guess a row(1," +str(TotalRows)+"): ")
-    while int(ask1)<0 or int(ask1)>TotalRows:
-        ask1 = input("that's not on the grid, guess a row(1," +str(TotalRows)+"): ")
-    row=int(ask1)-1
-    ask1 = input("guess a col(1,"+str(TotalCols)+"): ")
-    while is_int(ask1) is not True:
-        ask1 = input("that's not an integer, guess a col(1," +str(TotalCols)+"): ")
-    while int(ask1)<0 or int(ask1)>TotalCols:
-        ask1 = input("that's not on the grid, guess a col(1," +str(TotalCols)+"): ")
-    col=int(ask1)-1
-    return row,col
+def requestinput(bot=False):
+    if bot:
+        row,col=aiRand.selectRowCol(boardDisplay)
+        return row,col
+    else:
+        ask1 = input("guess a row(1," +str(TotalRows)+"): ")
+        while is_int(ask1) is not True:
+            ask1 = input("that's not an integer, guess a row(1," +str(TotalRows)+"): ")
+        while int(ask1)<0 or int(ask1)>TotalRows:
+            ask1 = input("that's not on the grid, guess a row(1," +str(TotalRows)+"): ")
+        row=int(ask1)-1
+        ask1 = input("guess a col(1,"+str(TotalCols)+"): ")
+        while is_int(ask1) is not True:
+            ask1 = input("that's not an integer, guess a col(1," +str(TotalCols)+"): ")
+        while int(ask1)<0 or int(ask1)>TotalCols:
+            ask1 = input("that's not on the grid, guess a col(1," +str(TotalCols)+"): ")
+        col=int(ask1)-1
+        return row,col
 
 
-guess = 0
-row,col=requestinput()
-defineMines(row,col)
+#convert string to lowercase
+def checkBot():
+    global bot
+    usebot=input("type yes if you want a bot to make the moves: ")
 
-if board[row][col]==1:
-    print("boom you died")
-    displaySol()
-    guess=TotalRows*TotalCols
-else:
-    boardDisplay[row][col]=checkMinesAround(row,col)
-    displayBoard()
-    guess+=1
-while guess < (TotalRows*TotalCols-numMines):
-    # row=int(input("guess a row(1," +str(TotalRows)+"): "))-1
-    # col=int(input("guess a col(1,"+str(TotalCols)+"): "))-1
-    row,col=requestinput()
+    if "yes" in usebot.lower():
+        
+        bot = True
+    else:
+        bot = False
+def playgame():
+    guess = 0
+    row,col=requestinput(bot)
+    defineMines(row,col)
+
     if board[row][col]==1:
         print("boom you died")
         displaySol()
-        break
+        guess=TotalRows*TotalCols
     else:
         boardDisplay[row][col]=checkMinesAround(row,col)
         displayBoard()
+        guess+=1
+    while guess < (TotalRows*TotalCols-numMines):
+        row,col=requestinput(bot)
+        if board[row][col]==1:
+            print("boom you died")
+            displaySol()
+            break
+        else:
+            boardDisplay[row][col]=checkMinesAround(row,col)
+            displayBoard()
+        guess+=1
+    if guess > (TotalRows*TotalCols-numMines):
         print("you win!")
-    guess+=1
+
+
+if __name__=="__main__":
+    global bot
+    initialize()
+    checkBot()
+    playgame()
+    again=input("play again? y/n: ")
+    while again is "y":
+        initialize()
+        playgame()
+        again=input("play again? y/n: ")
