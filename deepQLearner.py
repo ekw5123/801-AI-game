@@ -1,6 +1,6 @@
 from constants import *
-import MineSweeperEnv as MinesweeperEnv
-import qkNetwork as QNetwork
+from MineSweeperEnv import MinesweeperEnv
+from qkNetwork import QNetwork
 from qkNetwork import ReplayBuffer
 import random
 import tensorflow as tf
