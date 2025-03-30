@@ -123,9 +123,7 @@ if __name__ == "__main__": # hyperparameters need to be tuned in final version
                                     strat_interval=100)
         # NOTE: CAN CALL THIS METHOD WITH A SPECIFIED ARGUMENT OF strat_csv = 'Name_of_file.csv', OTHERWISE WILL ADD BOARD PARAMS TO FILE NAME
         # NOW THAT DEMO TESTING WITH CSP SOLVER IS IN PLACE AND PROBS CALCULATED, I SEE A SIGNIFICANT IMPROVEMENT IN WIN RATIO/100 EPISODES
-        # HAVE TO INCREASE NUM EPISODES SIGNIFICANTLY TO CLEARLY SEE THIS (E.G 5000 EPISODES)
-        # DEMO TESTING ON 1 ITERATION with 500 EPISODES (WinRatio may change when repeat testing this demo except for 0% mine density)
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 5/10/10, I got 10 wins out of 200
+        # STILL NEEDS WORK ON CSP SOLVER.
 
     else:
             
