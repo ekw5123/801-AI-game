@@ -111,13 +111,21 @@ if __name__ == "__main__": # hyperparameters need to be tuned in final version
         # NUM_MINES/NUM_ROWS/NUM_COLS = 0/12/12, I got 200 wins out of 200
 
         # AlSO GETTING 0 wins out of 200 if NUM_MINES > NUM_ROWS|NUM_COLS
-
-
+        
         # Not great learning here in the epsilon value, but I believe it is because the main issue is that is no 
         # CSP solver implemented yet, so the dummy probs (e.g. 0.5 for covered cells) is still implying a random selection.  Also squares revealed looks good, 
         # sometimes but it is most likely because of the def _flood fill_ (BFS) in SECTION 1 revealing lots of good squares due to low mine density. 
         # Once CSP is implemented, then we should see better learning gains.  If still bad after that, then we can adjust DQN architecture, episodes, 
         # penalties, alpha, hyperparameters etc.
+
+        dql.calculate_stratified_metrics(metrics_csv="metrics_output.csv", 
+                                    #strat_csv="metrics_stratified.csv",
+                                    strat_interval=100)
+        # NOTE: CAN CALL THIS METHOD WITH A SPECIFIED ARGUMENT OF strat_csv = 'Name_of_file.csv', OTHERWISE WILL ADD BOARD PARAMS TO FILE NAME
+        # NOW THAT DEMO TESTING WITH CSP SOLVER IS IN PLACE AND PROBS CALCULATED, I SEE A SIGNIFICANT IMPROVEMENT IN WIN RATIO/100 EPISODES
+        # HAVE TO INCREASE NUM EPISODES SIGNIFICANTLY TO CLEARLY SEE THIS (E.G 5000 EPISODES)
+        # DEMO TESTING ON 1 ITERATION with 500 EPISODES (WinRatio may change when repeat testing this demo except for 0% mine density)
+        # NUM_MINES/NUM_ROWS/NUM_COLS = 5/10/10, I got 10 wins out of 200
 
     else:
             

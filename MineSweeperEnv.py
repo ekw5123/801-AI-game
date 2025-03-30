@@ -97,12 +97,176 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
 
     def apply_csp_solver(self):
         """
-        Placeholder CSP approach (DSScsp + DSS).
-        Example usage:
+        A basic implementation of DSScsp + DSS based on the paper 
+        (NOTE: This probably won't scale well for larger boards due to computational 
+        cost of backtracking approach... Discuss with team!):
+        1) Gather constraints from all uncovered cells
+        2) Use DSS to prune obvious safe/mined cells
+        3) Randomly backtrack (DSScsp) to find partial solutions
+        4) Compute average mine probability for each covered cell
+
+        Storing results in self.mine_probabilities for retrieval by get_probability_of_mine method.
+        Usage:
           - Identify squares with 0% chance of being mine => uncover them
           - Identify squares with 100% chance => (flag them or skip in action space)
         """
-        pass  # Insert CSP logic here *** ERIC IS WORKING ON THIS ***
+        # Step 0: Prepare storage for probabilities.
+        self.mine_probabilities = {}
+        covered_cells = []   # list of (row, col)
+        index_map = {}       # maps (row, col) -> index in the solution vector
+
+        idx = 0
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if self.display[r, c] == -1:
+                    covered_cells.append((r, c))
+                    index_map[(r, c)] = idx
+                    idx += 1
+
+        if not covered_cells:
+            return
+
+        # Step 1: Gather constraints.
+        constraints = []
+        for rr in range(self.rows):
+            for cc in range(self.cols):
+                if self.display[rr, cc] >= 0:
+                    adj_mines = self.display[rr, cc]
+                    covered_neighbors = []
+                    for dr in [-1, 0, 1]:
+                        for dc in [-1, 0, 1]:
+                            r2, c2 = rr + dr, cc + dc
+                            if 0 <= r2 < self.rows and 0 <= c2 < self.cols:
+                                if self.display[r2, c2] == -1:
+                                    covered_neighbors.append(index_map[(r2, c2)])
+                    if covered_neighbors:
+                        constraints.append((covered_neighbors, adj_mines))
+
+        # Step 2: Apply DSS to force obvious assignments.
+        forced_mines = set()
+        forced_safes = set()
+
+        def dss_pass():
+            changed = False
+            for nbrs, val in constraints:
+                # Only consider those not yet forced.
+                covered_nbrs = [n for n in nbrs if n not in forced_mines and n not in forced_safes]
+                flagged_count = sum(1 for n in nbrs if n in forced_mines)
+                leftover = val - flagged_count
+                if leftover == 0:
+                    for x in covered_nbrs:
+                        if x not in forced_safes:
+                            forced_safes.add(x)
+                            changed = True
+                elif leftover == len(covered_nbrs):
+                    for x in covered_nbrs:
+                        if x not in forced_mines:
+                            forced_mines.add(x)
+                            changed = True
+            return changed
+
+        while dss_pass():
+            pass
+
+        # Step 3: DSScsp backtracking with memoization.
+        solutions = []
+        max_solutions = 20  # key parameter – adjust as needed
+        current = [None] * len(covered_cells)
+    
+        # Pre-assign forced variables.
+        for i in range(len(covered_cells)):
+            if i in forced_mines:
+                current[i] = 1
+            elif i in forced_safes:
+                current[i] = 0
+
+        # --- New: Compute variable ordering by constraint frequency ---
+        # Count frequency for each variable (i.e., how many constraints it appears in)
+        freq = [0] * len(covered_cells)
+        for nbrs, _ in constraints:
+            for n in nbrs:
+                freq[n] += 1
+        # Create an ordering: variables with higher frequency come first.
+        ordering = sorted(range(len(covered_cells)), key=lambda i: -freq[i])
+        # Create a mapping: position -> variable index in the ordering.
+        order_map = { pos: var for pos, var in enumerate(ordering) }
+
+        def check_constraints():
+            """Return True if the current partial assignment is consistent with constraints."""
+            for nbrs, val in constraints:
+                assigned = 0
+                unknown = 0
+                for n in nbrs:
+                    if current[n] == 1:
+                        assigned += 1
+                    elif current[n] is None:
+                        unknown += 1
+                if assigned > val or assigned + unknown < val:
+                    return False
+            return True
+
+        solutions_found = 0
+        memo = {}  # memoization dictionary
+
+        def backtrack(idx=0):
+            nonlocal solutions_found
+            # Use the ordering to select the next variable:
+            if idx >= len(current):
+                # Fully assigned: check constraints.
+                if check_constraints():
+                    solutions_found += 1
+                    solutions.append(current[:])
+                    memo[(idx, tuple(current))] = True
+                else:
+                    memo[(idx, tuple(current))] = False
+                return
+
+            key = (idx, tuple(current))
+            if key in memo:
+                return memo[key]
+            if solutions_found >= max_solutions:
+                memo[key] = None
+                return
+
+            # Instead of iterating over sequential indices, use ordering:
+            next_var = ordering[idx]  # pick the variable at position idx in the ordered list
+            found_solution = False
+            for val in [0, 1]:
+                current[next_var] = val
+                if check_constraints():
+                    backtrack(idx + 1)
+                    if any(sol is not None for sol in solutions):
+                        found_solution = True
+                current[next_var] = None
+            memo[key] = found_solution
+            return
+
+        backtrack()
+
+        # Step 4: Compute probabilities.
+        if not solutions:
+            for i, (r, c) in enumerate(covered_cells):
+                if i in forced_mines:
+                    self.mine_probabilities[(r, c)] = 1.0
+                elif i in forced_safes:
+                    self.mine_probabilities[(r, c)] = 0.0
+                else:
+                    self.mine_probabilities[(r, c)] = 0.5
+            return
+
+        counts = [0] * len(covered_cells)
+        for sol in solutions:
+            for i, val in enumerate(sol):
+                counts[i] += val
+
+        for i, (r, c) in enumerate(covered_cells):
+            if i in forced_mines:
+                p = 1.0
+            elif i in forced_safes:
+                p = 0.0
+            else:
+                p = counts[i] / float(len(solutions))
+            self.mine_probabilities[(r, c)] = p
 
     def check_adjacent_mines(self, row, col):
         """
@@ -180,9 +344,16 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
             self.won = True
             reward += 2.0  # big bonus for winning reward of 2.0
 
-        # Optionally re-run CSP after new reveals
+        # re-run CSP after new reveals and log probabilities to CSV for debugging csp_solver
         if not self.done:
             self.apply_csp_solver()
+
+        # NOTE: This can cause a slow down since we are calculating probs after each step.
+        # For debugging purposes, log the probabilities to a CSV file
+        #    with open("csp_probabilities_log.csv", "a") as f:
+        #        for (rc, prob) in self.mine_probabilities.items():
+        #            r2, c2 = rc
+        #            f.write(f"{r2},{c2},{prob}\n")        
 
         return self.display.copy(), reward, self.done, {"info": f"Revealed {delta} squares"}
 
@@ -203,8 +374,11 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
         """
         Placeholder: This is what we would get from CSP
         eq. (3) from the paper. For now, I am just going to return 0.5 for demo.
+        Returns the probability of cell (r, c) containing a mine.
+        This is calculated from the CSP solver (DSScsp _ DSS).
+        Note that probability falls back to 0.5 if no information
         """
-        return 0.5
+        return self.mine_probabilities.get((r, c), 0.5) 
 
     def get_location_score(self, r, c):
         """

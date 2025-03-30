@@ -5,6 +5,8 @@ from qkNetwork import ReplayBuffer
 import random
 import tensorflow as tf
 import numpy as np
+import os
+import csv
 
 ###############################################################
 #  SECTION 3: Deep Q-Learning Loop
@@ -138,7 +140,6 @@ class DeepQLearner:
         Train over multiple episodes, log results to CSV, and display squares revealed.
         max_steps is a heuristic to prevent algorithm using too many steps in an episode
         """
-        import os, csv
     
         # Prepare CSV file
         if os.path.exists(csv_output):
@@ -167,3 +168,69 @@ class DeepQLearner:
     
         print("Training complete.")
         print(f"Final Win Ratio: {self.win_count}/{self.episode_count} = {win_ratio:.3f}")
+
+    @staticmethod
+    def calculate_stratified_metrics(metrics_csv="metrics_output.csv", 
+                                 strat_interval=100,
+                                 strat_csv=None):
+        """
+        Reads the metrics_output.csv file and computes stratified metrics for every
+        'stratified interval' episodes (typically 100). It writes a new CSV file 
+        with filename including board parameters and number of episodes and whose 
+        headers include: EpisodeRange, AvgReward, AvgWinRatio, AvgEpsilon, 
+        AvgSquaresRevealed, Rows, Cols, NumMines, and TotalEpisodes
+        """
+        # Read all rows from the metrics_output.csv file.
+        with open(metrics_csv, "r", newline="") as infile:
+            reader = csv.DictReader(infile)
+            rows = list(reader)
+    
+        total_rows = len(rows)
+        strat_data = []
+    
+        # Process rows in batches of strat_interval.
+        for i in range(0, total_rows, strat_interval):
+            group = rows[i:i+strat_interval]
+            if not group:
+                break
+            # Compute the average metrics for the current group.
+            avg_reward = sum(float(r["TotalReward"]) for r in group) / len(group)
+            avg_win_ratio = sum(float(r["WinRatio"]) for r in group) / len(group)
+            avg_epsilon = sum(float(r["Epsilon"]) for r in group) / len(group)
+            avg_squares = sum(float(r["SquaresRevealed"]) for r in group) / len(group)
+
+            # Create label for the episode range.
+            ep_start = group[0]["Episode"]
+            ep_end = group[-1]["Episode"]
+            strat_data.append({
+            "EpisodeRange": f"{ep_start}-{ep_end}",
+            "AvgReward": f"{avg_reward:.3f}",
+            "AvgWinRatio": f"{avg_win_ratio:.3f}",
+            "AvgEpsilon": f"{avg_epsilon:.3f}",
+            "AvgSquaresRevealed": f"{avg_squares:.3f}"
+            })
+    
+        # If a strat_csv filename was not provided, build one that includes parameters.
+        if strat_csv is None:
+            # rows, cols, num_mines, num_episodes 
+            strat_csv = f"metrics_stratified_{NUM_ROWS}x{NUM_COLS}_{NUM_MINES}mines_{NUM_EPISODES}eps.csv"
+    
+        # Remove existing file, if present.
+        if os.path.exists(strat_csv):
+            os.remove(strat_csv)
+    
+        # Write the stratified metrics to the new CSV file with a header.
+        with open(strat_csv, "w", newline="") as outfile:
+            fieldnames = ["EpisodeRange", "AvgReward", "AvgWinRatio", "AvgEpsilon", "AvgSquaresRevealed",
+                        "Rows", "Cols", "NumMines", "TotalEpisodes"]
+            writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+            writer.writeheader()
+            # Add the common board parameters to each row.
+            for entry in strat_data:
+                entry["Rows"] = NUM_ROWS if NUM_ROWS is not None else ""
+                entry["Cols"] = NUM_COLS if NUM_COLS is not None else ""
+                entry["NumMines"] = NUM_MINES if NUM_MINES is not None else ""
+                entry["TotalEpisodes"] = NUM_EPISODES if NUM_EPISODES is not None else ""
+                writer.writerow(entry)
+
+        print(f"Stratified metrics written to {strat_csv}")
