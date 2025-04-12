@@ -47,6 +47,9 @@ class DeepQLearner:
         self.win_count = 0
         self.episode_count = 0
 
+        self.previous_ratio= 0
+        self.previous_weights= None
+
     def select_action(self, state):
         """Epsilon-greedy among all covered cells."""
         actions = self.env.get_available_actions()
@@ -160,6 +163,12 @@ class DeepQLearner:
                 f"Eps={self.epsilon:.3f} | "
                 f"WinRatio={win_ratio:.3f}"
             )
+            if self.previous_ratio < win_ratio:
+                self.previous_weights = self.q_network.get_weights().copy()
+                self.previous_ratio = win_ratio
+            elif win_ratio > 0.01:
+                self.q_network.set_weights(self.previous_weights)
+
     
             # Write to CSV
             with open(csv_output, 'a', newline='') as f:
