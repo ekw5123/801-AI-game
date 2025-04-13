@@ -1,3 +1,0 @@
-EpisodeRange,AvgReward,AvgWinRatio,AvgEpsilon,AvgSquaresRevealed,Rows,Cols,NumMines,TotalEpisodes
-1-100,0.107,0.055,0.987,88.050,10,10,5,200
-101-200,0.379,0.087,0.958,91.070,10,10,5,200
