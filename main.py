@@ -1,6 +1,7 @@
 from constants import *
 from MineSweeperEnv import MinesweeperEnv
 import airand as aiRand
+import shutil
 
 def SimOrInteractive(choice=None):
     if choice is None:
@@ -69,7 +70,7 @@ def runGame(agent=False):
 ###############################################################
 #  MAIN (DEMO)
 ###############################################################
-if __name__ == "__main__": # hyperparameters need to be tuned in final version
+if __name__ == "__main__":
     decision=SimOrInteractive()
     if not decision:
         input
@@ -82,15 +83,23 @@ if __name__ == "__main__": # hyperparameters need to be tuned in final version
             num_mines=NUM_MINES,
             sub_state_size=3,
             gamma=0.99,
-            lr=1e-3,
+            lr=1e-4,
             epsilon_start=1.0,
-            epsilon_min=0.1,
+            epsilon_min=0.05,
             epsilon_decay=1e-4,
             buffer_capacity=3000,
             batch_size=32
         )
 
-        dql.train_episodes(csv_output="metrics_output.csv")
+        dql.train_episodes(csv_output="metrics_output_current.csv")
+
+        # Construct new file name with board parameters and number of episodes.
+        new_metrics_filename = f"metrics_output_{NUM_ROWS}x{NUM_COLS}_{NUM_MINES}mines_{NUM_EPISODES}eps.csv"
+    
+        # Copy the dynamically generated metrics_output.csv to the new file name.
+        shutil.copy("metrics_output_current.csv", new_metrics_filename)
+    
+        print(f"Copied metrics_output_current.csv to {new_metrics_filename}")
         # DEMO TESTING ON 1 ITERATION with 200 EPISODES (WinRatio may change when repeat testing this demo except for 0% mine density)
         # NUM_MINES/NUM_ROWS/NUM_COLS = 10/10/10, I got 0 wins out of 200
         # NUM_MINES/NUM_ROWS/NUM_COLS = 5/10/10, I got 10 wins out of 200
@@ -118,8 +127,7 @@ if __name__ == "__main__": # hyperparameters need to be tuned in final version
         # Once CSP is implemented, then we should see better learning gains.  If still bad after that, then we can adjust DQN architecture, episodes, 
         # penalties, alpha, hyperparameters etc.
 
-        dql.calculate_stratified_metrics(metrics_csv="metrics_output.csv", 
-                                    #strat_csv="metrics_stratified.csv",
+        dql.calculate_stratified_metrics(metrics_csv="metrics_output_current.csv", 
                                     strat_interval=100)
         # NOTE: CAN CALL THIS METHOD WITH A SPECIFIED ARGUMENT OF strat_csv = 'Name_of_file.csv', OTHERWISE WILL ADD BOARD PARAMS TO FILE NAME
         # NOW THAT DEMO TESTING WITH CSP SOLVER IS IN PLACE AND PROBS CALCULATED, I SEE A SIGNIFICANT IMPROVEMENT IN WIN RATIO/100 EPISODES
