@@ -6,6 +6,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import csv
+import time
 
 ###############################################################
 #  SECTION 3: Deep Q-Learning Loop
