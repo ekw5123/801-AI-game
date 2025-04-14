@@ -166,7 +166,7 @@ class DeepQLearner:
             self.win_count += 1
         self.episode_count += 1
 
-        return total_reward, self.env.done, self.env.won
+        return total_reward, self.env.done, self.env.won, totalTime, average_per_move
 
     def train_episodes(self, num_episodes=NUM_EPISODES, max_steps = 2 * ((NUM_ROWS * NUM_COLS) - NUM_MINES), csv_output=None):
         """
@@ -193,7 +193,7 @@ class DeepQLearner:
             ]) 
 
         for ep in range(num_episodes):
-            ep_reward, done, won = self.run_episode(max_steps=max_steps)
+            ep_reward, done, won, totalTime, average_per_move = self.run_episode(max_steps=max_steps)
             squares_revealed = self.env.revealed_count
             win_ratio = self.win_count / float(self.episode_count)
 
