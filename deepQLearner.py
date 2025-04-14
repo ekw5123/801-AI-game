@@ -221,7 +221,8 @@ class DeepQLearner:
                     int(won),
                     self.env.sub_state_size, self.gamma, self.lr, 1.0,  # assuming epsilon_start is always 1.0
                     self.epsilon_min, self.epsilon_decay, 
-                    self.replay_buffer.capacity, self.batch_size, self.target_update_freq
+                    self.replay_buffer.capacity, self.batch_size, self.target_update_freq,
+                    totalTime, average_per_move
                 ]) 
         print("Training complete.")
         print(f"Final Win Ratio: {self.win_count}/{self.episode_count} = {win_ratio:.3f}")
