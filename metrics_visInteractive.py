@@ -1,10 +1,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplcursors
-
+import os
 
 #uses ggplot in matplotlib to style all charts
 def visualize_metrics():
+    output_folder = "results"
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
     #set a stylish theme (ggplot in this example)
     plt.style.use('ggplot')
 
@@ -20,6 +24,8 @@ def visualize_metrics():
     epsilon = metrics_file["Epsilon"]
     win_ratio = metrics_file["WinRatio"]
     squares_revealed = metrics_file["SquaresRevealed"]
+    totalTime = metrics_file["EpisodeTime"]
+    average_per_move = metrics_file["AverageMoveTime"]
 
     #plot Total Reward over Episodes
     #create our figure and axes, label, enable data hovering, save as png for ref
@@ -33,7 +39,7 @@ def visualize_metrics():
     #add interactive hover cursor
     mplcursors.cursor(line1, hover=True)
     #save figure to file
-    graphTRoE.savefig("total_reward.png")
+    graphTRoE.savefig(os.path.join(output_folder, "total_reward.png"))
     plt.show()
 
     #plot Epsilon Decay over Episodes
@@ -46,7 +52,7 @@ def visualize_metrics():
     ax2.legend()
     ax2.grid(True)
     mplcursors.cursor(line2, hover=True)
-    graphEDoE.savefig("epsilon_decay.png")
+    graphEDoE.savefig(os.path.join(output_folder, "epsilon_decay.png"))
     plt.show()
 
     #plot Win Ratio over Episodes
@@ -58,7 +64,7 @@ def visualize_metrics():
     ax3.legend()
     ax3.grid(True)
     mplcursors.cursor(line3, hover=True)
-    graphWRoE.savefig("win_ratio.png")
+    graphWRoE.savefig(os.path.join(output_folder, "win_ratio.png"))
     plt.show()
 
     #plot Squares Revealed over Episodes
@@ -70,7 +76,31 @@ def visualize_metrics():
     ax4.legend()
     ax4.grid(True)
     mplcursors.cursor(line4, hover=True)
-    graphSRoE.savefig("squares_revealed.png")
+    graphSRoE.savefig(os.path.join(output_folder, "squares_revealed.png"))
+    plt.show()
+    
+    #plot Episode Time over Episodes
+    graphET, axET = plt.subplots(figsize=(10, 6))
+    lineET, = axET.plot(episodes, totalTime, label="Episode Time", marker='o', color="red")
+    axET.set_xlabel("Episode")
+    axET.set_ylabel("Episode Time (seconds)")
+    axET.set_title("Episode Time over Episodes")
+    axET.legend()
+    axET.grid(True)
+    mplcursors.cursor(lineET, hover=True)
+    graphET.savefig(os.path.join(output_folder, "episode_time.png"))
+    plt.show()
+
+    #plot Average Time per Move over Episodes
+    graphAT, axAT = plt.subplots(figsize=(10, 6))
+    lineAT, = axAT.plot(episodes, average_per_move, label="Avg Time per Move", marker='o', color="blue")
+    axAT.set_xlabel("Episode")
+    axAT.set_ylabel("Average Time per Move (seconds)")
+    axAT.set_title("Average Time per Move over Episodes")
+    axAT.legend()
+    axAT.grid(True)
+    mplcursors.cursor(lineAT, hover=True)
+    graphAT.savefig(os.path.join(output_folder, "avg_time_per_move.png"))
     plt.show()
 
     #plot stratified metrics, depending on the file we wish to present
@@ -93,7 +123,7 @@ def visualize_metrics():
         ax5.legend()
         ax5.grid(True)
         mplcursors.cursor(line5, hover=True)
-        graphARpSI.savefig("avg_reward_stratified.png")
+        graphARpSI.savefig(os.path.join(output_folder, "avg_reward_stratified.png"))
         plt.show()
 
         #plot Average Win Ratio per Stratified Interval
@@ -105,7 +135,7 @@ def visualize_metrics():
         ax6.legend()
         ax6.grid(True)
         mplcursors.cursor(line6, hover=True)
-        graphWRpSI.savefig("avg_win_ratio_stratified.png")
+        graphWRpSI.savefig(os.path.join(output_folder, "avg_win_ratio_stratified.png"))
         plt.show()
 
     except FileNotFoundError:
