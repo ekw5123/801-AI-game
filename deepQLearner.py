@@ -133,6 +133,7 @@ class DeepQLearner:
         state = self.env.reset()
         total_reward = 0.0
         step = 0
+        episode_startTime = time.time()
 
         while True:
             action = self.select_action(state)
@@ -156,6 +157,10 @@ class DeepQLearner:
             if done or step >= max_steps:
                 break
 
+        episode_endTime = time.time()
+        totalTime = episode_endTime - episode_startTime
+        average_per_move = totalTime/step if step > 0 else 0
+        
         if self.env.won:
             self.win_count += 1
         self.episode_count += 1
@@ -183,7 +188,7 @@ class DeepQLearner:
             writer.writerow([
                 "Episode", "TotalReward", "SquaresRevealed", "Epsilon", "WinRatio", "Win",
                 "SubStateSize", "Gamma", "LR", "EpsilonStart", "EpsilonMin", "EpsilonDecay",
-                "BufferCapacity", "BatchSize", "TargetUpdateFreq"
+                "BufferCapacity", "BatchSize", "TargetUpdateFreq", "EpisodeTime", "AverageMoveTime"
             ]) 
 
         for ep in range(num_episodes):
@@ -197,7 +202,9 @@ class DeepQLearner:
                 f"SquaresRevealed={squares_revealed} | "
                 f"Won={won} | "
                 f"Eps={self.epsilon:.3f} | "
-                f"WinRatio={win_ratio:.3f}"
+                f"WinRatio={win_ratio:.3f} | "
+                f"EpisodeTime={totalTime:.2f}s | "
+                f"AverageTime/Move={average_per_move:.4}s"
             )
             if self.previous_ratio < win_ratio:
                 self.previous_weights = self.q_network.get_weights().copy()
