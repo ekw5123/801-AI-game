@@ -7,6 +7,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import csv
+import time
 
 ###############################################################
 #  SECTION 3: Deep Q-Learning Loop
@@ -106,6 +107,7 @@ class DeepQLearner:
         state = self.env.reset()
         total_reward = 0.0
         step = 0
+        episode_startTime = time.time()
 
         while True:
             action = self.select_action(state)
@@ -128,12 +130,16 @@ class DeepQLearner:
             step += 1
             if done or step >= max_steps:
                 break
+        
+        episode_endTime = time.time()
+        totalTime = episode_endTime - episode_startTime
+        average_per_move = totalTime/step if step > 0 else 0
 
         if self.env.won:
             self.win_count += 1
         self.episode_count += 1
 
-        return total_reward, self.env.done, self.env.won
+        return total_reward, self.env.done, self.env.won, totalTime, average_per_move
 
     def train_episodes(self, num_episodes=NUM_EPISODES, max_steps = 2 * ((NUM_ROWS * NUM_COLS) - NUM_MINES), csv_output="metrics_output.csv"):
         """
@@ -146,10 +152,10 @@ class DeepQLearner:
             os.remove(csv_output)
         with open(csv_output, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(["Episode", "TotalReward", "SquaresRevealed", "Epsilon", "WinRatio"])
+            writer.writerow(["Episode", "TotalReward", "SquaresRevealed", "Epsilon", "WinRatio", "EpisodeTime", "AverageMoveTime"])
     
         for ep in range(num_episodes):
-            ep_reward, done, won = self.run_episode(max_steps=max_steps)
+            ep_reward, done, won, totalTime, average_per_move = self.run_episode(max_steps=max_steps)
             squares_revealed = self.env.revealed_count
             win_ratio = self.win_count / float(self.episode_count)
             print(
@@ -158,13 +164,14 @@ class DeepQLearner:
                 f"SquaresRevealed={squares_revealed} | "
                 f"Won={won} | "
                 f"Eps={self.epsilon:.3f} | "
-                f"WinRatio={win_ratio:.3f}"
+                f"WinRatio={win_ratio:.3f} | "
+                f"EpisodeTime={totalTime:.2f}s | AverageTime/Move={average_per_move:.4}s"
             )
     
             # Write to CSV
             with open(csv_output, 'a', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow([ep+1, ep_reward, squares_revealed, self.epsilon, win_ratio])
+                writer.writerow([ep+1, ep_reward, squares_revealed, self.epsilon, win_ratio, totalTime, average_per_move])
     
         print("Training complete.")
         print(f"Final Win Ratio: {self.win_count}/{self.episode_count} = {win_ratio:.3f}")
