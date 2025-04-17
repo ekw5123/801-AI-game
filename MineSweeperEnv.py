@@ -1,19 +1,15 @@
 ###############################################################
-#  SECTION 1: Minesweeper Environment (CSP + MDP)
-# CSP = Constraint Satisfaction Problem, MDP = Markov Decision Process
-# ERIC WORKING ON THIS ------------
-# All FUNCTIONS HERE ARE MDP, EXCEPT DEF apply_csp_solver()
+# Minesweeper Environment (CSP + MDP)
 ###############################################################
-from constants import *
+from constants import NUM_MINES, NUM_ROWS, NUM_COLS, NUM_EPISODES, NUM_ROWS, NUM_COLS
 import numpy as np
 
-
-class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
+class MinesweeperEnv: 
     """
     Environment that integrates:
       - CSP hook (apply_csp_solver) for deterministic safe squares
-      - BFS expansions for zero-adjacency - Could be DFS too but need to discuss with team
-      - Weighted sub-state (alpha-based) for the "modified" Q-learning approach mentioned in paper
+      - BFS expansions for zero-adjacency
+      - Weighted sub-state (alpha-based)
     """
 
     def __init__(self, rows=NUM_ROWS, cols=NUM_COLS, num_mines=NUM_MINES, sub_state_size=3):
@@ -35,8 +31,7 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
         self.revealed_count = 0
         self.safe_cells = (rows*cols) - num_mines
 
-        # Compute alpha once (paper's eq. (10)) using minimal coefficients
-        # We can tune this or regress these coefficients to maximize performance
+        # Compute alpha once (paper's eq. (10))using minimal coefficients
         mine_ratio = self.num_mines / float(self.rows * self.cols)
         # For demo purposes using: alpha = 0.25 * p + 0.25 * q + 0.2 * mine_ratio + 0.05 [SEE EQ. 10]
         self.alpha = 0.25*self.rows + 0.25*self.cols + 0.2*mine_ratio + 0.05
@@ -44,7 +39,7 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
         self.alpha = max(0, min(self.alpha, 1))
 
         # Run initial CSP logic to uncover guaranteed squares
-        self.apply_csp_solver() # THIS IS WHAT ERIC IS WORKING ON!  JUST CALL AND PASS JUST NOW...
+        self.apply_csp_solver()
 
     def render(self):
 
@@ -97,9 +92,7 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
 
     def apply_csp_solver(self):
         """
-        A basic implementation of DSScsp + DSS based on the paper 
-        (NOTE: This probably won't scale well for larger boards due to computational 
-        cost of backtracking approach... Discuss with team!):
+        A basic implementation of DSScsp + DSS
         1) Gather constraints from all uncovered cells
         2) Use DSS to prune obvious safe/mined cells
         3) Randomly backtrack (DSScsp) to find partial solutions
@@ -180,7 +173,6 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
             elif i in forced_safes:
                 current[i] = 0
 
-        # --- New: Compute variable ordering by constraint frequency ---
         # Count frequency for each variable (i.e., how many constraints it appears in)
         freq = [0] * len(covered_cells)
         for nbrs, _ in constraints:
@@ -283,8 +275,6 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
     def _flood_fill(self, row, col):
         """
         If adjacency=0, BFS expansion reveals neighbors.
-        I am using BFS here but possibly use 
-        DFS expansion here (discuss with Team!)
         """
         stack = [(row, col)]
         revealed_positions = []
@@ -348,13 +338,6 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
         if not self.done:
             self.apply_csp_solver()
 
-        # NOTE: This can cause a slow down since we are calculating probs after each step.
-        # For debugging purposes, log the probabilities to a CSV file
-        #    with open("csp_probabilities_log.csv", "a") as f:
-        #        for (rc, prob) in self.mine_probabilities.items():
-        #            r2, c2 = rc
-        #            f.write(f"{r2},{c2},{prob}\n")        
-
         return self.display.copy(), reward, self.done, {"info": f"Revealed {delta} squares"}
 
     def get_available_actions(self):
@@ -366,15 +349,8 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
                     actions.append((r, c))
         return actions
 
-    # ----------- BEGIN "MODIFIED" SUB-STATE EXTRACTION (Alpha Weighted) ERIC WORKING ON THESE BUT USING DEMO VALUES JUST NOW-----------
-    # the alpha here is a weighting of mine_probability and location score (review of equation 10) but using dummy alpha just now
-    # We should tune or regress to get better values of alpha.
-
     def get_probability_of_mine(self, r, c): # ERIC WORKING ON THIS
         """
-        Placeholder: This is what we would get from CSP
-        eq. (3) from the paper. For now, I am just going to return 0.5 for demo.
-        Returns the probability of cell (r, c) containing a mine.
         This is calculated from the CSP solver (DSScsp _ DSS).
         Note that probability falls back to 0.5 if no information
         """
@@ -382,7 +358,7 @@ class MinesweeperEnv: # This is just now for demo - ERIC setting up environment)
 
     def get_location_score(self, r, c):
         """
-        Compute the location score for cell (r, c) using Equation (4).
+        Compute the location score for cell (r, c)
         
         formula_dict = {'corner': 4, 'edge': 6, 'middle': 8}
         The formula for location score is formula_dict.key():

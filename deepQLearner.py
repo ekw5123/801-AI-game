@@ -9,7 +9,7 @@ import csv
 import time
 
 ###############################################################
-#  SECTION 3: Deep Q-Learning Loop
+#  Deep Q-Learning Loop
 # - Does all the DQN heavy work such as epsilon-greedy action selection
 # - sampling from ReplayBuffer, Update Q-values, episode iteration
 # - and logging results into .csv file
@@ -110,10 +110,6 @@ class DeepQLearner:
         self.optimizer.apply_gradients(zip(grads, self.q_network.trainable_variables))
 
         self.train_step_count += 1
-
-        # Hard Target Network update
-        #if self.train_step_count % self.target_update_freq == 0:
-        #    self.target_network.set_weights(self.q_network.get_weights())
 
         # Polyak-averaging Target Network update
         polyak_var = 0.001

@@ -1,4 +1,4 @@
-from constants import *
+from constants import NUM_MINES, NUM_ROWS, NUM_COLS, NUM_EPISODES
 from MineSweeperEnv import MinesweeperEnv
 import airand as aiRand
 import shutil
@@ -66,7 +66,6 @@ def runGame(agent=False):
             game.render()
 
 
-
 ###############################################################
 #  MAIN (DEMO)
 ###############################################################
@@ -100,38 +99,9 @@ if __name__ == "__main__":
         shutil.copy("metrics_output_current.csv", new_metrics_filename)
     
         print(f"Copied metrics_output_current.csv to {new_metrics_filename}")
-        # DEMO TESTING ON 1 ITERATION with 200 EPISODES (WinRatio may change when repeat testing this demo except for 0% mine density)
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 10/10/10, I got 0 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 5/10/10, I got 10 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 2/10/10, I got 112 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 1/10/10, I got 157 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 0/10/10, I got 200 wins out of 200
-
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 8/8/8, I got 0 wins out of 200    
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 5/8/8, I got 13 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 2/8/8, I got 90 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 1/8/8, I got 146 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 0/8/8, I got 200 wins out of 200
-
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 12/12/12, I got 0 wins out of 200    
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 5/12/12, I got 19 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 2/12/12, I got 126 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 1/12/12, I got 169 wins out of 200
-        # NUM_MINES/NUM_ROWS/NUM_COLS = 0/12/12, I got 200 wins out of 200
-
-        # AlSO GETTING 0 wins out of 200 if NUM_MINES > NUM_ROWS|NUM_COLS
-        
-        # Not great learning here in the epsilon value, but I believe it is because the main issue is that is no 
-        # CSP solver implemented yet, so the dummy probs (e.g. 0.5 for covered cells) is still implying a random selection.  Also squares revealed looks good, 
-        # sometimes but it is most likely because of the def _flood fill_ (BFS) in SECTION 1 revealing lots of good squares due to low mine density. 
-        # Once CSP is implemented, then we should see better learning gains.  If still bad after that, then we can adjust DQN architecture, episodes, 
-        # penalties, alpha, hyperparameters etc.
 
         dql.calculate_stratified_metrics(metrics_csv="metrics_output_current.csv", 
                                     strat_interval=100)
-        # NOTE: CAN CALL THIS METHOD WITH A SPECIFIED ARGUMENT OF strat_csv = 'Name_of_file.csv', OTHERWISE WILL ADD BOARD PARAMS TO FILE NAME
-        # NOW THAT DEMO TESTING WITH CSP SOLVER IS IN PLACE AND PROBS CALCULATED, I SEE A SIGNIFICANT IMPROVEMENT IN WIN RATIO/100 EPISODES
-        # STILL NEEDS WORK ON CSP SOLVER.
 
     else:
             

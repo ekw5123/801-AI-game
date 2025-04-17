@@ -1,6 +1,4 @@
-
 import random
-
 
 def selectRowCol(boardDisplay):
     TotalRows=len(boardDisplay)
