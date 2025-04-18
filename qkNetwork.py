@@ -13,7 +13,7 @@ import numpy as np
 
 class QNetwork(tf.keras.Model):
     """
-    DQN network to handle sub-state => Q-value. Using table 2 in paper
+    DQN network to handle sub-state => Q-value.
     and includes the alpha-weighted sub-state input.
       - Input (sub_state_size*sub_state_size) neurons, ReLU
       - Hidden1 (d1) (sub_state_size*sub_state_size) neurons, tanh
