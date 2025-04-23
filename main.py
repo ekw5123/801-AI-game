@@ -35,7 +35,6 @@ def randomOrChoice(choice=None):
         print("Invalid choice. Please enter 1 or 2.")
         return SimOrInteractive()
     
-
 def runGame(agent=False):
     if not agent:
         game = MinesweeperEnv(rows=NUM_ROWS, cols=NUM_COLS, num_mines=NUM_MINES)
@@ -65,7 +64,6 @@ def runGame(agent=False):
             print("You lost!")
             game.render()
 
-
 ###############################################################
 #  MAIN (DEMO)
 ###############################################################
@@ -82,7 +80,7 @@ if __name__ == "__main__":
             num_mines=NUM_MINES,
             sub_state_size=3,
             gamma=0.99,
-            lr=1e-4,
+            lr=1e-3,
             epsilon_start=1.0,
             epsilon_min=0.05,
             epsilon_decay=1e-4,

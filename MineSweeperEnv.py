@@ -1,7 +1,7 @@
 ###############################################################
 # Minesweeper Environment (CSP + MDP)
 ###############################################################
-from constants import NUM_MINES, NUM_ROWS, NUM_COLS, NUM_EPISODES, NUM_ROWS, NUM_COLS
+from constants import NUM_MINES, NUM_ROWS, NUM_COLS
 import numpy as np
 
 class MinesweeperEnv: 
@@ -37,13 +37,14 @@ class MinesweeperEnv:
         self.alpha = 0.25*self.rows + 0.25*self.cols + 0.2*mine_ratio + 0.05
         # We clamp alpha between [0,1] for safety:
         self.alpha = max(0, min(self.alpha, 1))
+        self.alpha = 0.6 
 
         # Run initial CSP logic to uncover guaranteed squares
         self.apply_csp_solver()
 
     def render(self):
-
-        print("-"*50)
+        len_col = self.cols*4
+        print("---" + ("-"*len_col))
         for row in range(0,self.rows):
             print(" ", end = " | ")
             for col in range(0,self.cols):
@@ -52,7 +53,7 @@ class MinesweeperEnv:
                 else:
                     print(self.display[row][col],end=" | ")
             print("")
-            print("-"*50)
+            print("---" + ("-"*len_col))
 
     def reset(self):
         """Reset for a new episode."""
@@ -69,6 +70,7 @@ class MinesweeperEnv:
         mine_ratio = self.num_mines / float(self.rows * self.cols)
         self.alpha = 0.25*self.rows + 0.25*self.cols + 0.2*mine_ratio + 0.05 # SAME AS IN DEF_INIT (Can Tune this!)
         self.alpha = max(0, min(self.alpha, 1))
+        self.alpha = 0.6 
 
         self.apply_csp_solver()
         return self.display
@@ -317,7 +319,7 @@ class MinesweeperEnv:
             self.done = True
             self.won = False
             # Cell contains mine => large negative penalty of 1.0
-            return self.display.copy(), -1.0, self.done, {"info": "Hit a mine"}
+            return self.display.copy(), -5.0, self.done, {"info": "Hit a mine"}
 
         # Otherwise reveal
         revealed_before = self.revealed_count
@@ -326,13 +328,14 @@ class MinesweeperEnv:
         delta = revealed_now - revealed_before
 
         # Reward proportional to fraction of new safe squares uncovered
-        reward = float(delta) / float(self.safe_cells)
+        reward = 10 * float(delta) / float(self.safe_cells)
 
         # Check for win
         if self.revealed_count == self.safe_cells:
             self.done = True
             self.won = True
-            reward += 2.0  # big bonus for winning reward of 2.0
+            #reward += 10.0  # big bonus for winning reward of 10.0
+            reward = 10 * float(delta) / float(self.safe_cells)
 
         # re-run CSP after new reveals and log probabilities to CSV for debugging csp_solver
         if not self.done:

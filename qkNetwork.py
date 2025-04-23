@@ -6,7 +6,7 @@ import random
 import numpy as np
 
 ###############################################################
-#  SECTION 2: Build Q-Network
+#  Build Q-Network
 #  - define the NN architecture and stores the transitions
 #  - using the ReplayBuffer class
 ###############################################################
@@ -21,10 +21,10 @@ class QNetwork(tf.keras.Model):
       - Hidden3 (d3) (sub_state_size*sub_state_size) neurons, linear
       - Output = 1 neuron, tanh
     """
-    def __init__(self, sub_state_size=3): # this arcitecture is based on table 2 in paper
+    def __init__(self, sub_state_size=3): # this architecture is based on table 2 in paper
         super(QNetwork, self).__init__()
         self.flatten = layers.Flatten()
-        self.input_layer = layers.Dense(sub_state_size*sub_state_size, activation='relu'        )
+        self.input_layer = layers.Dense(sub_state_size*sub_state_size, activation='relu')
         self.d1 = layers.Dense(sub_state_size*sub_state_size, activation='tanh')
         self.d2 = layers.Dense(sub_state_size*sub_state_size, activation='linear')
         self.d3 = layers.Dense(sub_state_size*sub_state_size, activation='linear')
