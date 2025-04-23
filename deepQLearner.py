@@ -1,4 +1,4 @@
-from constants import *
+from constants import NUM_MINES, NUM_ROWS, NUM_COLS, NUM_EPISODES
 from MineSweeperEnv import MinesweeperEnv
 from qkNetwork import QNetwork, ReplayBuffer
 import random
@@ -96,7 +96,6 @@ class DeepQLearner:
             if dones[i]:
                 next_q_vals.append(0.0)
             else:
-                #nxt_val = self.q_network(np.expand_dims(s_subs_next[i], axis=0)).numpy()[0][0]
                 nxt_val = self.target_network(np.expand_dims(s_subs_next[i], axis=0)).numpy()[0][0]
                 next_q_vals.append(nxt_val)
 
