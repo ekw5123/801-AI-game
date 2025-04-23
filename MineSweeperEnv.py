@@ -334,7 +334,6 @@ class MinesweeperEnv:
         if self.revealed_count == self.safe_cells:
             self.done = True
             self.won = True
-            #reward += 10.0  # big bonus for winning reward of 10.0
             reward = 10 * float(delta) / float(self.safe_cells)
 
         # re-run CSP after new reveals and log probabilities to CSV for debugging csp_solver
