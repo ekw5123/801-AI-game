@@ -7,7 +7,9 @@ Designing a minesweeper game and an AI that plays it
 ## Description
 
 This project uses a combindation of Constraint SAtisfaction Problems, the Markov Decision Process and Deep Learning to solve a game of minesweeper.  Minesweeper was chosen as the game is played with incomplete information but can be won by employing learned strategies.  
+
 Each revealed number represents a constraint on a neighboring cell. This enabled us to utilize the Constraint Satisfaction Problem (CSP) to help train our AI how to solve for the winning strategy.​
+
 The Markov Decision Process (MDP) is used when the AI has to make a decision when given uncertain parameters. Given that Minesweeper is played with incomplete information, this is a great method to implement to help train our AI to make the best decision.​
 
 With our best run, we achieved a win ratio of 42.4% over the course of 10,000 training episodes.
@@ -21,7 +23,7 @@ We could potentially resolve this by extending the training period and slowing t
 ## Getting Started
 
 ### Dependencies
-required python modules
+Required python modules
 * tensorflow
 * numpy
 * shutil
@@ -33,16 +35,16 @@ required python modules
 ### Installing
 
 * Clone the repo
-* install above prerequisites
+* Install above prerequisites
 
 ### Executing program
 
 * How to run the program
-* run main.py
-* for ai mode, type 1
-* for interactive mode: type 2
-*   interactive mode user input: type 1
-*   interactive mode random agent: type 2
+* Run main.py
+* For ai mode, type 1
+* For interactive mode: type 2
+* ---interactive mode user input: type 1
+* ---interactive mode random agent: type 2
 
 To Postprocess generated data into plots, run metrics_visInteractive.py 
 
