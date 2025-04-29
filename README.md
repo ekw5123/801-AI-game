@@ -55,5 +55,5 @@ Constants for number of mines, grid dimensions, and number of episodes can be mo
 
 ## Acknowledgments
 
-Inspiration, code snippets, etc.
+Inspiration
 * Sinha, Y. P., Malviya, P., & Nayak, R. K. (2021). Fast constraint satisfaction problem and learning-based algorithm for solving Minesweeper. arXiv. https://doi.org/10.48550/arXiv.2105.04120 
